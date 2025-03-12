@@ -6,22 +6,8 @@ library(purrr)
 library(tidyr)
 library(ggplot2)
 
+get_responses <- function(survey_url, sheet_name) {
 
-get_responses <- function(survey_url, sheet_name){
-  responses <- read_sheet(survey_url, sheet_name, .name_repair = "minimal")
-  na_cols <- map_lgl(responses, \(x) all(is.na(x)))
-  valid_responses <- responses[, !na_cols]
-  valid_responses |>
-    pivot_longer(
-      cols = !Timestamp,
-      names_to = "question",
-      values_to = "response",
-      values_drop_na = TRUE
-    ) |>
-    select(-Timestamp) |>
-    group_by(question, response) |>
-    count(name = "total") |>
-    mutate(question = substr(question, 31, nchar(question) - 1))
 }
 
 ui <- basicPage(
@@ -34,13 +20,31 @@ server <- function(input, output) {
   output$distPlot <- renderGirafe({
     autoInvalidate()
 
-    results <- get_responses(
-      "https://docs.google.com/spreadsheets/d/1YPFPC9GqMqt5EUWgWGe2aXsfbB50ql_wkQDlgxbR3xw/edit?gid=1663697578#gid=1663697578",
-      "Form Responses 2"
-    )
+    url <- Sys.getenv("SURVEY_GS_URL", unset = NA)
+    sheet <- Sys.getenv("SURVEY_GS_SHEET", unset = NA)
 
+    if(is.na(url) | is.na(sheet)) {
+      stop("No URL or sheet provided")
+    }
 
-
+    responses <- read_sheet(
+      ss = url,
+      sheet = sheet,
+      .name_repair = "minimal"
+      )
+    na_cols <- map_lgl(responses, \(x) all(is.na(x)))
+    valid_responses <- responses[, !na_cols]
+    results <- valid_responses |>
+      pivot_longer(
+        cols = !Timestamp,
+        names_to = "question",
+        values_to = "response",
+        values_drop_na = TRUE
+      ) |>
+      select(-Timestamp) |>
+      group_by(question, response) |>
+      count(name = "total") |>
+      mutate(question = substr(question, 31, nchar(question) - 1))
 
     p1 <- results |>
       ggplot() +
@@ -68,7 +72,10 @@ server <- function(input, output) {
       )
 
     x <- girafe(ggobj = p1)
-    girafe_options(x, opts_tooltip(css = "font-family: monospace; background-color: lightblue; padding: 5px;"))
+    girafe_options(
+      x = x,
+      opts_tooltip(css = "font-family: monospace; background-color: lightblue; padding: 5px;")
+      )
   })
 }
 
