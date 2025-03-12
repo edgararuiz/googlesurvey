@@ -34,23 +34,20 @@ server <- function(input, output) {
       ) +
       facet_wrap(vars(question), ncol = 1, strip.position = "right") +
       labs(x = "", y = "") +
-      #theme_minimal() +
       theme(
+        axis.title = element_blank(),
         legend.position = "none",
         axis.text.y = element_text(size = 5),
         axis.text.x = element_text(size = 5),
-        strip.text.y = element_text(angle = 0),
-        strip.text = element_text(size = 6),
-        #plot.background = element_rect(fill = "#ddd"),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_line("#ddd"),
-        panel.background = element_rect("white", colour = "#ddd")
+        strip.text.y = element_text(angle = 0, hjust = 0),
+        strip.text = element_text(size = 7),
+        strip.background = element_rect("white"),
+        panel.grid.major.x = element_line("#ddd", linewidth = 0.1),
+        panel.background = element_rect("white")
       )
 
-    girafe(
-      ggobj = p1,
-      options = list(opts_sizing(rescale = TRUE))
-    )
+    x <- girafe(ggobj = p1)
+    girafe_options(x, opts_tooltip(css = "font-family: monospace; background-color: lightblue; padding: 5px;"))
   })
 }
 
