@@ -1,7 +1,28 @@
 library(shiny)
 library(ggiraph)
+library(googlesheets4)
+library(dplyr)
+library(purrr)
+library(tidyr)
+library(ggplot2)
 
-source("functions.R")
+
+get_responses <- function(survey_url, sheet_name){
+  responses <- read_sheet(survey_url, sheet_name, .name_repair = "minimal")
+  na_cols <- map_lgl(responses, \(x) all(is.na(x)))
+  valid_responses <- responses[, !na_cols]
+  valid_responses |>
+    pivot_longer(
+      cols = !Timestamp,
+      names_to = "question",
+      values_to = "response",
+      values_drop_na = TRUE
+    ) |>
+    select(-Timestamp) |>
+    group_by(question, response) |>
+    count(name = "total") |>
+    mutate(question = substr(question, 31, nchar(question) - 1))
+}
 
 ui <- basicPage(
   girafeOutput("distPlot", height = "800px")
