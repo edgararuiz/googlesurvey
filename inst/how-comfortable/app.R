@@ -6,10 +6,6 @@ library(purrr)
 library(tidyr)
 library(ggplot2)
 
-get_responses <- function(survey_url, sheet_name) {
-
-}
-
 ui <- basicPage(
   girafeOutput("distPlot", height = "800px")
 )
