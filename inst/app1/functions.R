@@ -24,30 +24,24 @@ simple_split <- function(string, pattern){
 get_responses <- function(survey_url, sheet_name){
 
   #survey <- googlesheets4::url(survey_url, verbose = FALSE)
-  responses <- read_sheet(survey_url, sheet_name)
+  responses <- read_sheet(survey_url, sheet_name, .name_repair = "minimal")
 
-  tr <- responses %>%
-    select(-Timestamp)
+  na_cols <- responses |>
+    map_lgl(\(x) all(is.na(x)))
 
-  tidy_responses <- 1:length(tr) %>%
-    map_df(~{
-      headers <- simple_split(colnames(tr[.x]), "[")
-      if(length(headers) == 2){
-        section <- trimws(headers[1])
-        question <- str_replace_all(headers[2], "\\]", "")
-      } else {
-        section <- ""
-        question <- headers[1]
-      }
-      tibble(
-        section,
-        question,
-        response = pull(tr, .x)
-      )
-    }) %>%
-    filter(!is.na(response))
+  valid_responses <- responses[, !na_cols]
 
-  tidy_responses
+  valid_responses |>
+    pivot_longer(
+      cols = !Timestamp,
+      names_to = "question",
+      values_to = "response",
+      values_drop_na = TRUE
+    ) |>
+    select(-Timestamp) |>
+    group_by(question, response) |>
+    count(name = "total") |>
+    mutate(question = substr(question, 31, nchar(question) - 1))
 }
 
 

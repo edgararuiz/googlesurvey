@@ -16,15 +16,12 @@ server <- function(input, output) {
 
     results <- get_responses(
       "https://docs.google.com/spreadsheets/d/1YPFPC9GqMqt5EUWgWGe2aXsfbB50ql_wkQDlgxbR3xw/edit?gid=1663697578#gid=1663697578",
-      "Form Responses 1"
+      "Form Responses 2"
     )
 
     results %>%
-      filter(section == "How comfortable are you with") %>%
-      group_by(question, response) %>%
-      tally() %>%
       ggplot() +
-      geom_col(aes(x = response, y = n, fill = response)) +
+      geom_col(aes(x = response, y = total, fill = response)) +
       coord_flip() +
       facet_grid(question ~ .) +
       labs(x = "", y  = "")
