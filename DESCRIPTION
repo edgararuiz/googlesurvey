@@ -1,6 +1,6 @@
 Package: googlesurvey
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Title: Displays Google Survey results
+Version: 0.0.0.9001
 Authors@R: 
     person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
 Description: What the package does (one paragraph).
@@ -12,10 +12,11 @@ RoxygenNote: 7.3.2
 Depends:
   R (>= 4.1.0)
 Imports:
-  shiny,
-  ggiraph,
-  googlesheets4,
-  dplyr,
-  purrr,
-  tidyr,
-  ggplot2
+    shiny,
+    ggiraph,
+    googlesheets4,
+    dplyr,
+    purrr,
+    tidyr,
+    ggplot2,
+    withr

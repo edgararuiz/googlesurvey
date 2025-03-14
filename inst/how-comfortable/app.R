@@ -28,6 +28,11 @@ server <- function(input, output) {
       sheet = sheet,
       .name_repair = "minimal"
       )
+
+    if(nrow(responses) == 0) {
+      return(NULL)
+    }
+
     na_cols <- map_lgl(responses, \(x) all(is.na(x)))
     valid_responses <- responses[, !na_cols]
     results <- valid_responses |>
